@@ -36,17 +36,6 @@ periodicActivity(); //call the periodicActivity function
 
 function periodicActivity()
 {
-    /*
-    var delayPeriod = buf[idx++];
-    if (delayPeriod == 0) {
-        idx = 0;
-        setTimeout(periodicActivity, 1);
-    } else {
-        ledState = !ledState; //invert the ledState
-        myOnboardLed.write(ledState?1:0); //if ledState is true then write a '1' (high) otherwise write a '0' (low)
-        setTimeout(periodicActivity, delayPeriod); //call the indicated function after 1 second (1000 milliseconds)
-    }
-    */
     if (idx < buf.length) {
         var delayPeriod = buf[idx++];
         ledState = !ledState; //invert the ledState
