@@ -1,0 +1,74 @@
+{
+  "project": {
+    "projectSettingsVersion": "3.0.0",
+    "currentBuildConfiguration": null,
+    "projectFiles": {},
+    "projectDirectories": {}
+  },
+  "editorTab": {
+    "currentEditorMode": 0
+  },
+  "iot-tab": {
+    "fileStatus": {
+      "Blink.xdk": {
+        "previousModTime": 1472919874324,
+        "modified": 1472919874324,
+        "seen": true,
+        "name": "Blink.xdk"
+      },
+      "Blink.xdke": {
+        "previousModTime": 1474335239278,
+        "modified": 1474335239278,
+        "seen": true,
+        "name": "Blink.xdke"
+      },
+      "icon.png": {
+        "previousModTime": 1472919871864,
+        "modified": 1472919871864,
+        "seen": true,
+        "name": "icon.png"
+      },
+      "main.js": {
+        "previousModTime": 1473890020888,
+        "modified": 1473890020888,
+        "seen": true,
+        "name": "main.js"
+      },
+      "package.json": {
+        "previousModTime": 1472919871864,
+        "modified": 1472919871864,
+        "seen": true,
+        "name": "package.json"
+      },
+      "README.md": {
+        "previousModTime": 1472919871864,
+        "modified": 1472919871864,
+        "seen": true,
+        "name": "README.md"
+      },
+      "xdk/project-info.json": {
+        "previousModTime": 1472919873596,
+        "modified": 1472919873596,
+        "seen": true,
+        "name": "xdk/project-info.json"
+      }
+    },
+    "boardFileStatus": {
+      "icon.png": {
+        "previousModTime": 1474335323800
+      },
+      "main.js": {
+        "previousModTime": 1474335323800
+      },
+      "package.json": {
+        "previousModTime": 1474335323800
+      },
+      "README.md": {
+        "previousModTime": 1474335323800
+      },
+      "xdk/project-info.json": {
+        "previousModTime": 1474335323800
+      }
+    }
+  }
+}
