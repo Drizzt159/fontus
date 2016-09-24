@@ -1,0 +1,74 @@
+{
+  "project": {
+    "projectSettingsVersion": "3.0.0",
+    "currentBuildConfiguration": null,
+    "projectFiles": {},
+    "projectDirectories": {}
+  },
+  "editorTab": {
+    "currentEditorMode": 0
+  },
+  "iot-tab": {
+    "fileStatus": {
+      "icon.png": {
+        "previousModTime": 1474592024150,
+        "modified": 1474592024150,
+        "seen": true,
+        "name": "icon.png"
+      },
+      "LICENSE.md": {
+        "previousModTime": 1474592024150,
+        "modified": 1474592024150,
+        "seen": true,
+        "name": "LICENSE.md"
+      },
+      "main.js": {
+        "previousModTime": 1474753326179,
+        "modified": 1474753326179,
+        "seen": true,
+        "name": "main.js"
+      },
+      "Nrf24Test.xdk": {
+        "previousModTime": 1474592026458,
+        "modified": 1474592026458,
+        "seen": true,
+        "name": "Nrf24Test.xdk"
+      },
+      "Nrf24Test.xdke": {
+        "previousModTime": 1474753963078,
+        "modified": 1474753963078,
+        "seen": true,
+        "name": "Nrf24Test.xdke"
+      },
+      "package.json": {
+        "previousModTime": 1474597223640,
+        "modified": 1474597223640,
+        "seen": true,
+        "name": "package.json"
+      },
+      "README.md": {
+        "previousModTime": 1474592024150,
+        "modified": 1474592024150,
+        "seen": true,
+        "name": "README.md"
+      },
+      "xdk/project-info.json": {
+        "previousModTime": 1474592025766,
+        "modified": 1474592025766,
+        "seen": true,
+        "name": "xdk/project-info.json"
+      },
+      "nrf2401.js": {
+        "previousModTime": 1474754027918,
+        "modified": 1474754027918,
+        "seen": true,
+        "name": "nrf2401.js"
+      }
+    },
+    "boardFileStatus": {
+      "nrf2401.js": {
+        "previousModTime": 1474754030345
+      }
+    }
+  }
+}
