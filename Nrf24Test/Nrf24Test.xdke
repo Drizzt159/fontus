@@ -23,8 +23,8 @@
         "name": "LICENSE.md"
       },
       "main.js": {
-        "previousModTime": 1474911988994,
-        "modified": 1474911988994,
+        "previousModTime": 1474913270842,
+        "modified": 1474913270842,
         "seen": true,
         "name": "main.js"
       },
@@ -35,8 +35,8 @@
         "name": "Nrf24Test.xdk"
       },
       "Nrf24Test.xdke": {
-        "previousModTime": 1474911982242,
-        "modified": 1474911982242,
+        "previousModTime": 1474911989734,
+        "modified": 1474911989734,
         "seen": true,
         "name": "Nrf24Test.xdke"
       },
@@ -67,7 +67,7 @@
     },
     "boardFileStatus": {
       "main.js": {
-        "previousModTime": 1474911989673
+        "previousModTime": 1474913271536
       }
     }
   }

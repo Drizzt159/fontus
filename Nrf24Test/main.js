@@ -30,10 +30,10 @@ function poll()
 	{
 		// Got data!
 		console.log("Got data");
-		var RXData = new Buffer(2);
-		radio.NRFReadData(2,RXData);
-        var moisture = RXData[0] || (RXData[1] << 8);
-		console.log(moisture);
+		var RXData = new Buffer(3);
+        radio.NRFReadData(3,RXData);
+        var moisture = RXData[1] || (RXData[2] << 8);
+		console.log("Sensor #" + RXData[0].toString() + ": " + moisture.toString());
 		radio.NRFWriteRegister(0x07,0x70); // clear status flags
 		//RXData[1]=~RXData[0];	// send back some 'dummy' data
         var TXData = new Buffer("moist");
