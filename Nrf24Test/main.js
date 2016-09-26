@@ -7,6 +7,11 @@
 /******* Low level setup (configure I/O etc *******/
 var m = require('mraa');
 console.log('MRAA version: ' + m.getVersion());
+
+// configure SPI for 1MHz operation
+var SPI = new m.Spi(0);
+SPI.frequency(1000000);
+
 var radio = require('./nrf2401');
 
 /* The main body of the program follows.  
@@ -16,8 +21,10 @@ var radio = require('./nrf2401');
 */
 function poll()
 {
-	//console.log("status: " + NRFReadRegister(0x7).toString(16));
-	//console.log("fifo: " + NRFReadRegister(0x17).toString(16));
+    //radio.printRegisters();
+	//console.log("status: " + radio.NRFReadRegister(0x7).toString(16));
+	//console.log("fifo: " + radio.NRFReadRegister(0x17).toString(16));
+	//console.log("cd: " + radio.NRFReadRegister(0x9).toString(16));
 	// check to see if there is any received data
 	if ((radio.NRFReadRegister(0x7) & 0x40) > 0)
 	{
@@ -35,8 +42,10 @@ function poll()
 	setTimeout(poll,5);
 }
     
+var ce = 8;
+var csn = 10;
 
-radio.NRFinit();
+radio.NRFinit(m, SPI, ce, csn);
 console.log("Switching to RX mode");
 radio.printRegisters();
 poll();

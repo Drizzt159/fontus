@@ -2,61 +2,19 @@
 /*jshint unused:false */
 
 
-var m = require('mraa');
-// configure SPI for 1MHz operation
-var SPI = new m.Spi(0);
-SPI.frequency(1000000);
+// Set up CE and CSN pins for the NRF24L01
+// These will be directly controlled by software NOT the SPI hardware
+var CEPin;
+var CSNPin;
+var m;
+var SPI;
+// Global variable that is updated during each SPI transaction
+var NRFStatus;
 
 //0x65646f4e31LL, 0x65646f4e32LL
 var PAYLOAD_LENGTH=32;
 var SOURCE_ADDRESS=([0x31, 0x4e, 0x6f, 0x64, 0x65]);
 var DESTINATION_ADDRESS=([0x32, 0x4e, 0x6f, 0x64, 0x65]);
-
-var regNames = [
-'NRF_CONFIG',
-'EN_AA',
-'EN_RXADDR',
-'SETUP_AW',
-'SETUP_RETR',
-'RF_CH',
-'RF_SETUP',
-'NRF_STATUS',
-'OBSERVE_TX',
-'CD',
-'RX_ADDR_P0',
-'RX_ADDR_P1',
-'RX_ADDR_P2',
-'RX_ADDR_P3',
-'RX_ADDR_P4',
-'RX_ADDR_P5',
-'TX_ADDR',   
-'RX_PW_P0',  
-'RX_PW_P1',  
-'RX_PW_P2',  
-'RX_PW_P3',  
-'RX_PW_P4',  
-'RX_PW_P5',  
-'FIFO_STATUS',
-'DYNPD',
-'FEATURE',
-'',
-'',
-'',
-'',
-'',
-'',
-];
-
-// Set up CE and CSN pins for the NRF24L01
-// These will be directly controlled by software NOT the SPI hardware
-var CEPin = new m.Gpio(8);
-var CSNPin = new m.Gpio(10);
-CEPin.dir(m.DIR_OUT);
-CSNPin.dir(m.DIR_OUT);
-CEPin.write(0);
-CSNPin.write(1);
-// Global variable that is updated during each SPI transaction
-var NRFStatus;
 
 function delay(howlong)
 {
@@ -76,17 +34,27 @@ function transferSPI(data)
 module.exports = {
     
 // NRF Functions follow
-NRFinit:  function()
+NRFinit:  function(mraa, spi, ce, csn)
 {		
+    m = mraa;
+    SPI = spi;
+    CEPin = new m.Gpio(ce);
+    CSNPin = new m.Gpio(csn);
+    
+    CEPin.dir(m.DIR_OUT);
+    CSNPin.dir(m.DIR_OUT);
+    CEPin.write(0);
+    CSNPin.write(1);
+    
 	module.exports.NRFWriteRegister(0,0);			// Clear out config
-//	NRFWriteRegister(1,3);			// enable auto ack in P0 and P1
-	module.exports.NRFWriteRegister(1,0x3f);			// enable auto ack in P0 and P1
+	module.exports.NRFWriteRegister(1,3);			// enable auto ack in P0 and P1
+//	module.exports.NRFWriteRegister(1,0x3f);			// enable auto ack in P0 and P1
 	module.exports.NRFWriteRegister(4,0x24);		// 750us between retries, 4 retries
 	module.exports.NRFWriteRegister(2,3);			// enable data pipe 0 and 1
 	module.exports.NRFWriteRegister(3,3);			// 5 byte addressing
-//	NRFWriteRegister(0x05,5); 		// select channel 5
+//	module.exports.NRFWriteRegister(0x05,5); 		// select channel 5
 	module.exports.NRFWriteRegister(0x05,0x4c); 		// select channel 77
-//	NRFWriteRegister(0x06,0x06); 	// select 1Mbps, maximum power
+	module.exports.NRFWriteRegister(0x06,0x06); 	// select 1Mbps, maximum power
 	module.exports.NRFWriteRegister(0x07,0x70); 	// clear status flags
 	module.exports.NRFWriteRegister(0x11,0);		// Auto ack in pipe 0
 	module.exports.NRFWriteRegister(0x12,PAYLOAD_LENGTH);	// set payload length
@@ -306,7 +274,7 @@ NRFEnableRXMode: function ()
 NRFWriteData: function (Length, Data)
 {
 	var index;
-	if (Length > 32)
+	if (Length > PAYLOAD_LENGTH)
 		return -1; // too long
 	module.exports.NRFWriteCE(0);
 	module.exports.NRFWriteRegister(0x07,0x70); // clear RX_DR,TX_DS,MAX_RT bits
@@ -318,7 +286,7 @@ NRFWriteData: function (Length, Data)
 		transferSPI(Data[index]);
 	}
     // Read remaing payload to clear.
-    while (index < 32)
+    while (index < PAYLOAD_LENGTH)
 	{
 		transferSPI(0xff);
         index++;
@@ -364,8 +332,8 @@ printRegisters: function ()
 	for (regnum = 0;regnum < 0x20; regnum++)
 	{		
 		var hexstring = module.exports.NRFReadRegister(regnum).toString(16); 
-		//console.log(regnum.toString(16) + " : " + hexstring);
-		console.log(regNames[regnum] + " : " + hexstring);
+		console.log(regnum.toString(16) + " : " + hexstring);
+		//console.log(regNames[regnum] + " : " + hexstring);
 	}
 }
     
