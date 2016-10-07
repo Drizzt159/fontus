@@ -56,23 +56,31 @@ var analogValue = 0;
 
 var x = u.setBaudRate(9600);
 
+var ipAddress = "";
+var networkInterfaces = require('os').networkInterfaces();
+
+for (var n = 0; n < networkInterfaces.wlp1s0.length; n++) {
+    if (networkInterfaces.wlp1s0[n].family == 'IPv4') {
+        ipAddress = networkInterfaces.wlp1s0[n].address;
+    }
+}
+console.log(ipAddress);
+
 var rslt = lcdSerial.init(u);
 if (rslt === true) {
     console.log("inited");
     lcdSerial.displayOn();
-    console.log("here1");
     lcdSerial.backlightOn();
-    console.log("here2");
     lcdSerial.returnHome();
-    console.log("here3");
     //lcdSerial.cursorOn();
-    console.log("here4");
+    lcdSerial.setCursor(1, 0);
     lcdSerial.writeStr("Water on! ");
     sleep(1000);
-    console.log("here5");
     lcdSerial.backlightOff();
-    console.log("here6");
     //lcdSerial.cursorOff();
+
+    lcdSerial.setCursor(0, 0);
+    lcdSerial.writeStr(ipAddress);
 
     doNothing();
 } else {
@@ -93,6 +101,7 @@ function doNothing() {
     analogValue = analogPin0.read();
     lcdSerial.setCursor(0, 0);
     var temp = "    " + analogValue.toString();
+    lcdSerial.setCursor(1, 0);
     lcdSerial.writeStr("Water on! " + temp.substring(temp.length - 4));
     setTimeout(doNothing, 500);
 }

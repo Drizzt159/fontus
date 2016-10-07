@@ -23,8 +23,8 @@
         "name": "LICENSE.md"
       },
       "main.js": {
-        "previousModTime": 1475623876343,
-        "modified": 1475623876343,
+        "previousModTime": 1475811359251,
+        "modified": 1475811359251,
         "seen": true,
         "name": "main.js"
       },
@@ -47,8 +47,8 @@
         "name": "UartTest2.xdk"
       },
       "UartTest2.xdke": {
-        "previousModTime": 1475623822447,
-        "modified": 1475623822447,
+        "previousModTime": 1475811212846,
+        "modified": 1475811212846,
         "seen": true,
         "name": "UartTest2.xdke"
       },
@@ -73,7 +73,7 @@
     },
     "boardFileStatus": {
       "main.js": {
-        "previousModTime": 1475623886953
+        "previousModTime": 1475811366968
       }
     }
   }
