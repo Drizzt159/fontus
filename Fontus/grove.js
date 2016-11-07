@@ -38,7 +38,7 @@ var moisture, flow, pump;
 // pins
 var moisturePin = 0,
     flowPin = 2,
-    pumpPin = 8;
+    pumpPin = 7;
 
 // Initialize the Grove hardware devices
 exports.init = function(config) {

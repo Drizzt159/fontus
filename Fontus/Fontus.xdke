@@ -35,14 +35,14 @@
         "name": "Fontus.xdk"
       },
       "Fontus.xdke": {
-        "previousModTime": 1476835299655,
-        "modified": 1476835299655,
+        "previousModTime": 1478444759501,
+        "modified": 1478444759501,
         "seen": true,
         "name": "Fontus.xdke"
       },
       "grove.js": {
-        "previousModTime": 1476235231425,
-        "modified": 1476235231425,
+        "previousModTime": 1478355643399,
+        "modified": 1478355643399,
         "seen": true,
         "name": "grove.js"
       },
@@ -53,20 +53,20 @@
         "name": "icon.png"
       },
       "index.html": {
-        "previousModTime": 1476145452922,
-        "modified": 1476145452922,
+        "previousModTime": 1478443994370,
+        "modified": 1478443994370,
         "seen": true,
         "name": "index.html"
       },
       "index.js": {
-        "previousModTime": 1476236818707,
-        "modified": 1476236818707,
+        "previousModTime": 1478444803805,
+        "modified": 1478444803805,
         "seen": true,
         "name": "index.js"
       },
       ".jshintrc": {
-        "previousModTime": 1476145452922,
-        "modified": 1476145452922,
+        "previousModTime": 1477147031375,
+        "modified": 1477147031375,
         "seen": true,
         "name": ".jshintrc"
       },
@@ -83,8 +83,8 @@
         "name": "mqtt.js"
       },
       "package.json": {
-        "previousModTime": 1476145452922,
-        "modified": 1476145452922,
+        "previousModTime": 1477015046462,
+        "modified": 1477015046462,
         "seen": true,
         "name": "package.json"
       },
@@ -99,44 +99,23 @@
         "modified": 1476145453810,
         "seen": true,
         "name": "xdk/project-info.json"
+      },
+      "nrf2401.js": {
+        "previousModTime": 1474911602000,
+        "modified": 1474911602000,
+        "seen": true,
+        "name": "nrf2401.js"
+      },
+      "lcdSerial.js": {
+        "previousModTime": 1475452465000,
+        "modified": 1475452465000,
+        "seen": true,
+        "name": "lcdSerial.js"
       }
     },
     "boardFileStatus": {
-      "config.json": {
-        "previousModTime": 1476835482108
-      },
-      "datastore.js": {
-        "previousModTime": 1476835482108
-      },
-      "dfrobot.js": {
-        "previousModTime": 1476835482108
-      },
-      "grove.js": {
-        "previousModTime": 1476835482108
-      },
-      "icon.png": {
-        "previousModTime": 1476835482108
-      },
-      "index.html": {
-        "previousModTime": 1476835482108
-      },
       "index.js": {
-        "previousModTime": 1476835482108
-      },
-      "LICENSES.md": {
-        "previousModTime": 1476835482108
-      },
-      "mqtt.js": {
-        "previousModTime": 1476835482108
-      },
-      "package.json": {
-        "previousModTime": 1476835482108
-      },
-      "README.md": {
-        "previousModTime": 1476835482108
-      },
-      "xdk/project-info.json": {
-        "previousModTime": 1476835482108
+        "previousModTime": 1478444824128
       }
     }
   }

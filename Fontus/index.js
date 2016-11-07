@@ -37,12 +37,18 @@ var config = JSON.parse(
   fs.readFileSync(path.join(__dirname, "config.json"))
 );
 
+var reportIndex = 0;
+var dataDictionary = {};
+
 var datastore = require("./datastore");
 var mqtt = require("./mqtt");
+var request = require("request");
 
 // The program is using the `later` module
 // to handle scheduling of recurring tasks
 var later = require("later");
+
+var log_file = null;
 
 // The program is using the `twilio` module
 // to make the remote calls to Twilio service
@@ -52,6 +58,22 @@ if (config.TWILIO_ACCT_SID && config.TWILIO_AUTH_TOKEN) {
   twilio = require("twilio")(config.TWILIO_ACCT_SID,
                                  config.TWILIO_AUTH_TOKEN);
 }
+
+var m = require("mraa");
+console.log("MRAA version: " + m.getVersion());
+
+// configure SPI for 1MHz operation
+var SPI = new m.Spi(0);
+SPI.frequency(1000000);
+
+// Create the UART object.
+var uart = new m.Uart(0);
+
+// Load the radio package for remote sensoring.
+var radio = require("./nrf2401");
+
+// Load the serial LCD package.
+var lcdSerial = require("./lcdSerial");
 
 // Used to store the schedule for turning on/off the
 // watering system, as well as store moisture data
@@ -68,6 +90,44 @@ if (config.kit) {
   board = require("./grove.js");
 }
 board.init(config);
+
+var ipAddress = "";
+var networkInterfaces = require("os").networkInterfaces();
+
+function logDebug(err) {
+    try {
+        if (log_file != null) {
+            log_file.write(err);
+        }
+    } catch(err) {
+        console.log("Error logging: " + err);
+    }
+}
+
+function setIpAddress() {
+    try {
+        if (networkInterfaces.hasOwnProperty("wlp1s0")) {
+            for (var n = 0; n < networkInterfaces.wlp1s0.length; n++) {
+                if (networkInterfaces.wlp1s0[n].family === "IPv4") {
+                    ipAddress = networkInterfaces.wlp1s0[n].address;
+                }
+            }
+        }
+        if (networkInterfaces.hasOwnProperty("enp0s20f6")) {
+            if (ipAddress.length === 0) {
+                for (var k = 0; k < networkInterfaces.enp0s20f6.length; k++) {
+                    if (networkInterfaces.enp0s20f6[k].family === "IPv4") {
+                        ipAddress = networkInterfaces.enp0s20f6[k].address;
+                    }
+                }
+            }
+        }
+    } catch(err) {
+        console.log(err);
+        logDebug(err);
+    }
+    console.log(ipAddress);
+}
 
 // Display and then store record in the remote datastore/mqtt server
 // of each time a watering system event has occurred
@@ -166,6 +226,9 @@ function server() {
       data.time,
       "</td>",
       "<td>",
+      data.sensor,
+      "</td>",
+      "<td>",
       data.value,
       "</td>",
       "</tr>"
@@ -200,16 +263,161 @@ function server() {
   app.listen(process.env.PORT || 3000);
 }
 
-// check the moisture level every 15 minutes
+function pushDataToThingSpeak(value) {
+    var requestData = {
+      api_key: "CHFOZEUUU1BVFQVN",
+      field1: value.toString(),
+      field2: (-value).toString()
+    };
+    
+    try {
+        request({
+            url: "https://api.thingspeak.com/update.json",
+            method: "POST",
+            json: requestData
+            },
+            function(err, res, body) {
+                // `body` is a js object if request was successful
+                //console.log(body);
+            if (err) {
+                console.log(err);
+            } else {
+                logDebug("moisture: " + value.toString() + "\n");
+            }
+        });
+    } catch(err) {
+        
+    }
+}
+
+function saveData(value, sensor) {
+    MOISTURE.push({ value: value, sensor: sensor, time: new Date().toISOString() });
+
+    if (MOISTURE.length > 20) { 
+        MOISTURE.shift(); 
+    }
+}
+
+// check the moisture level every 10 minutes
 function monitor() {
-  setInterval(function() {
-    var value = board.moistureValue();
+    setInterval(function() {
+        var value = board.moistureValue();
+        dataDictionary["0"] = value;
+        
+        saveData(value, 0);
+        
+        pushDataToThingSpeak(value);
 
-    MOISTURE.push({ value: value, time: new Date().toISOString() });
-    log("moisture (" + value + ")");
+        log("moisture (" + value + ")");
 
-    if (MOISTURE.length > 20) { MOISTURE.shift(); }
-  }, 1 * 30 * 1000);
+    }, 10 * 1 * 1000);
+}
+
+function initLog () {
+    try {
+        log_file = fs.createWriteStream(
+            __dirname + "/debug.log", {flags : "w+"});
+    } catch(err) {
+        console.log("Failed to open log file: " + err);
+    }
+}
+
+// This function initializes the radio for remote sensing.
+function initRadio() {
+    var ce = 8;
+    var csn = 10;
+
+    radio.NRFinit(m, SPI, ce, csn);
+    console.log("Switching to RX mode");
+    radio.printRegisters();
+}
+
+function initSerial() {
+    var rslt = false;
+    try {
+        var serialPath = uart.getDevicePath();
+        console.log(serialPath);
+    
+        rslt = lcdSerial.init(uart);
+    } catch (err) {
+        console.log(err);
+    }
+    
+    if (rslt === true) {
+        console.log("lcdSerial inited");
+    } else {
+        console.log("lcdSerial inited failed!");
+    }
+    
+    return rslt;
+}
+
+function displayIpAddress() {
+    lcdSerial.displayOn();
+    lcdSerial.backlightOn();
+    lcdSerial.returnHome();
+
+    lcdSerial.setCursor(0, 0);
+    lcdSerial.writeStr(ipAddress);
+}
+
+function pollRemoteSensor()
+{
+    try {
+        //radio.printRegisters();
+        //console.log("status: " + radio.NRFReadRegister(0x7).toString(16));
+        //console.log("fifo: " + radio.NRFReadRegister(0x17).toString(16));
+        //console.log("cd: " + radio.NRFReadRegister(0x9).toString(16));
+        // check to see if there is any received data
+        if ((radio.NRFReadRegister(0x7) & 0x40) > 0)
+        {
+            // Got data!
+            var RXData = new Buffer(3);
+            radio.NRFReadData(3,RXData);
+            var moisture = RXData[1] + (RXData[2] * 256);
+            var sensorId = parseInt(RXData[0]);
+            dataDictionary[sensorId.toString()] = moisture;
+            console.log(RXData[0].toString() + ":" + RXData[1].toString() + ":" + RXData[2].toString());
+            var msg = "Sensor #" + sensorId.toString() + ": " + moisture.toString();
+            console.log(msg);
+            
+            saveData(moisture, sensorId);
+            
+            // Respond to the transmitter.
+            radio.NRFWriteRegister(0x07,0x70); // clear status flags
+            var TXData = new Buffer("moist");
+            radio.NRFWriteData(5, TXData);
+        }
+    } catch(err) {
+        console.log(err);
+    }
+	setTimeout(pollRemoteSensor, 5);
+}
+
+function lcdReport() {
+
+    var count = Object.keys(dataDictionary).length;
+    
+    if (reportIndex < count) {
+        var key = Object.keys(dataDictionary)[reportIndex];
+        var value = dataDictionary[key];
+        console.log(key.toString() + ":" + value.toString());    
+        var msg = "Sensor #" + key.toString() + ": " + value.toString();
+        console.log(msg);
+
+        lcdSerial.clearDisplay();
+        lcdSerial.setCursor(0, 0);
+        lcdSerial.writeStr(ipAddress);
+        lcdSerial.setCursor(1, 0);
+        lcdSerial.writeStr(msg);
+        reportIndex++;
+    }
+
+    if (reportIndex === count) {
+        reportIndex = 0;
+    }
+    
+    setTimeout(lcdReport, 3000);
 }
 
 // The main function calls `server()` to start up
@@ -218,11 +426,21 @@ function monitor() {
 // It also calls the `monitor()` function which monitors
 // the moisture data.
 function main() {
-  server();
-  monitor();
-  board.events.on("alert", function() {
-    alert();
-  });
+    var rslt = initSerial();
+    initRadio();
+    initLog();
+    setIpAddress();
+    if (rslt === true) {
+        displayIpAddress();
+    }
+    server();
+    monitor();
+    board.events.on("alert", function() {
+        alert();
+    });
+    
+    pollRemoteSensor();
+    lcdReport();
 }
 
 main();
