@@ -79,6 +79,7 @@ var lcdSerial = require("./lcdSerial");
 // watering system, as well as store moisture data
 var SCHEDULE = {},
     MOISTURE = [],
+    FLOW = [],
     intervals = [],
     smsSent = false;
 
@@ -231,6 +232,12 @@ function server() {
       "<td>",
       data.value,
       "</td>",
+      "<td>",
+      data.sensorFlow,
+      "</td>",
+      "<td>",
+      data.valueFlow,
+      "</td>",
       "</tr>"
     ].join("\n");
   }
@@ -290,7 +297,7 @@ function pushDataToThingSpeak(value) {
     }
 }
 
-function saveData(value, sensor) {
+function saveDataMoisture(value, sensor) {
     MOISTURE.push({ value: value, sensor: sensor, time: new Date().toISOString() });
 
     if (MOISTURE.length > 20) { 
@@ -298,19 +305,47 @@ function saveData(value, sensor) {
     }
 }
 
-// check the moisture level every 10 minutes
+function saveDataFlow(value, sensor) {
+    FLOW.push({ value: value, sensor: sensor, time: new Date().toISOString() });
+
+    if (FLOW.length > 20) { 
+        FLOW.shift(); 
+    }
+}
+
+// Variable to control if checks for checking water sensor
+var check = false;
+// check the moisture level every 10 seconds
 function monitor() {
     setInterval(function() {
-        var value = board.moistureValue();
-        dataDictionary["0"] = value;
         
-        saveData(value, 0);
+        var value = board.moistureValue();
+        var valueFlow = board.getFlowCount();
+        dataDictionary["0"] = value;
+        dataDictionary["1"] = valueFlow;
+        saveDataMoisture(value, 0);
+        saveDataFlow(valueFlow, 8);
         
         pushDataToThingSpeak(value);
+        pushDataToThingSpeak(valueFlow);
 
         log("moisture (" + value + ")");
+        if (!check && (value < 50)) {
+            turnOn();
+            board.startFlow();
+            watering(true);
+        }
+        log("flow (" + board.getFlowCount() + ") millis: (" + board.getMillis() + ") flow rate: (" + board.getFlowRate() + ")");
+        if (check && board.getMillis() >= 120000) {
+            turnOff();
+            board.stopFlow();
+            watering(false);
+        }
+    }, 10 * 1000);
+}
 
-    }, 10 * 1 * 1000);
+function watering(active) {
+    check = active;
 }
 
 function initLog () {
@@ -379,7 +414,7 @@ function pollRemoteSensor()
             dataDictionary[sensorId.toString()] = moisture;
             console.log(RXData[0].toString() + ":" + RXData[1].toString() + ":" + RXData[2].toString());
             var msg = "Sensor #" + sensorId.toString() + ": " + moisture.toString();
-            console.log(msg);
+//            console.log(msg);
             
             saveData(moisture, sensorId);
             
@@ -401,9 +436,9 @@ function lcdReport() {
     if (reportIndex < count) {
         var key = Object.keys(dataDictionary)[reportIndex];
         var value = dataDictionary[key];
-        console.log(key.toString() + ":" + value.toString());    
+//        console.log(key.toString() + ":" + value.toString());    
         var msg = "Sensor #" + key.toString() + ": " + value.toString();
-        console.log(msg);
+//        console.log(msg);
 
         lcdSerial.clearDisplay();
         lcdSerial.setCursor(0, 0);
@@ -434,7 +469,10 @@ function main() {
         displayIpAddress();
     }
     server();
-    monitor();
+    if (!check) {
+        monitor();
+    }
+    
     board.events.on("alert", function() {
         alert();
     });

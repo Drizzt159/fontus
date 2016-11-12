@@ -37,7 +37,7 @@ var moisture, flow, pump;
 
 // pins
 var moisturePin = 0,
-    flowPin = 2,
+    flowPin = 8,
     pumpPin = 7;
 
 // Initialize the Grove hardware devices
@@ -73,6 +73,28 @@ exports.checkFlowOn = function() {
     if (flow.flowRate() < 1) { events.emit("alert"); }
   }, 2000);
 };
+
+exports.startFlow = function() {
+  flow.clearFlowCounter();
+  flow.startFlowCounter();
+}
+
+exports.stopFlow = function() {
+  flow.stopFlowCounter();
+  flow.clearFlowCounter();
+}
+
+exports.getFlowCount = function() {
+    return flow.flowCounter();
+}
+
+exports.getFlowRate = function() {
+    return flow.flowRate();
+}
+
+exports.getMillis = function() {
+    return flow.getMillis();
+}
 
 // Check that water isn't flowing
 exports.checkFlowOff = function() {
