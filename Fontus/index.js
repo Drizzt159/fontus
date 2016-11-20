@@ -270,11 +270,34 @@ function server() {
   app.listen(process.env.PORT || 3000);
 }
 
-function pushDataToThingSpeak(value) {
+function pushDataToThingSpeak() {
+    
+    var value1 = 0;
+    var value2 = 0;
+    var idx = 0;
+    
+    var count = Object.keys(dataDictionary).length;
+    
+    while (idx < count) {
+        var key = Object.keys(dataDictionary)[idx];
+        var value = dataDictionary[key];
+        switch(idx) {
+            case 0:
+                value1 = value;
+                break;
+            case 1:
+                value2 = value;
+                break;
+            default:
+                break;
+        }
+        idx++;
+    }
+    
     var requestData = {
       api_key: "CHFOZEUUU1BVFQVN",
-      field1: value.toString(),
-      field2: (-value).toString()
+      field1: value1.toString(),
+      field2: value2.toString()
     };
     
     try {
@@ -289,7 +312,8 @@ function pushDataToThingSpeak(value) {
             if (err) {
                 console.log(err);
             } else {
-                logDebug("moisture: " + value.toString() + "\n");
+                logDebug("moisture 0: " + value1.toString() + "\n");
+                logDebug("moisture 7: " + value2.toString() + "\n");
             }
         });
     } catch(err) {
@@ -326,9 +350,12 @@ function monitor() {
         saveDataMoisture(value, 0);
         saveDataFlow(valueFlow, 8);
         
+<<<<<<< .mine
+=======
         pushDataToThingSpeak(value);
         pushDataToThingSpeak(valueFlow);
 
+>>>>>>> .r28
         log("moisture (" + value + ")");
         if (!check && (value < 50)) {
             turnOn();
@@ -452,6 +479,8 @@ function lcdReport() {
         reportIndex = 0;
     }
     
+    pushDataToThingSpeak();
+
     setTimeout(lcdReport, 3000);
 }
 
