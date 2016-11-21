@@ -35,14 +35,14 @@
         "name": "Fontus.xdk"
       },
       "Fontus.xdke": {
-        "previousModTime": 1479259963096,
-        "modified": 1479259963096,
+        "previousModTime": 1479694322220,
+        "modified": 1479694322220,
         "seen": true,
         "name": "Fontus.xdke"
       },
       "grove.js": {
-        "previousModTime": 1478476484330,
-        "modified": 1478476484330,
+        "previousModTime": 1479681984566,
+        "modified": 1479681984566,
         "seen": true,
         "name": "grove.js"
       },
@@ -53,14 +53,14 @@
         "name": "icon.png"
       },
       "index.html": {
-        "previousModTime": 1478476494258,
-        "modified": 1478476494258,
+        "previousModTime": 1479694439268,
+        "modified": 1479694439268,
         "seen": true,
         "name": "index.html"
       },
       "index.js": {
-        "previousModTime": 1479261154830,
-        "modified": 1479261154830,
+        "previousModTime": 1479692763999,
+        "modified": 1479692763999,
         "seen": true,
         "name": "index.js"
       },
@@ -114,47 +114,8 @@
       }
     },
     "boardFileStatus": {
-      "config.json": {
-        "previousModTime": 1479261536319
-      },
-      "datastore.js": {
-        "previousModTime": 1479261536319
-      },
-      "dfrobot.js": {
-        "previousModTime": 1479261536319
-      },
-      "grove.js": {
-        "previousModTime": 1479261536319
-      },
-      "icon.png": {
-        "previousModTime": 1479261536319
-      },
       "index.html": {
-        "previousModTime": 1479261536319
-      },
-      "index.js": {
-        "previousModTime": 1479261536319
-      },
-      "LICENSES.md": {
-        "previousModTime": 1479261536319
-      },
-      "mqtt.js": {
-        "previousModTime": 1479261536319
-      },
-      "package.json": {
-        "previousModTime": 1479261536319
-      },
-      "README.md": {
-        "previousModTime": 1479261536319
-      },
-      "xdk/project-info.json": {
-        "previousModTime": 1479261536319
-      },
-      "nrf2401.js": {
-        "previousModTime": 1479261536319
-      },
-      "lcdSerial.js": {
-        "previousModTime": 1479261536319
+        "previousModTime": 1479694475511
       }
     }
   }

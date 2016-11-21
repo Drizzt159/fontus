@@ -50,6 +50,9 @@ var later = require("later");
 
 var log_file = null;
 
+// Variable to control if checks for checking water sensor
+var check = false;
+
 // The program is using the `twilio` module
 // to make the remote calls to Twilio service
 // to send SMS alerts
@@ -233,12 +236,21 @@ function server() {
       data.value,
       "</td>",
       "<td>",
-      data.sensorFlow,
+      data.flowValue,
+      "</td>",
+    ].join("\n");
+  }
+
+  // Helper function to generate the web page's data table
+  function flow_elem(data) {
+    return [
+      "<tr>",
+      "<td>",
+      data.time,
       "</td>",
       "<td>",
-      data.valueFlow,
+      data.value,
       "</td>",
-      "</tr>"
     ].join("\n");
   }
 
@@ -246,7 +258,8 @@ function server() {
   function index(req, res) {
     function serve(err, data) {
       if (err) { return console.error(err); }
-      res.send(data.replace("$MOISTUREDATA$", MOISTURE.map(elem).join("\n")));
+        res.send(data.replace("$MOISTUREDATA$", MOISTURE.map(elem).join("\n"))
+                );
     }
 
     fs.readFile(path.join(__dirname, "index.html"), {encoding: "utf-8"}, serve);
@@ -274,30 +287,28 @@ function pushDataToThingSpeak() {
     
     var value1 = 0;
     var value2 = 0;
-    var idx = 0;
+    var value3 = 0;
+    var n = 0;
     
     var count = Object.keys(dataDictionary).length;
     
-    while (idx < count) {
-        var key = Object.keys(dataDictionary)[idx];
+    for (n = 0; n < count; n++) {
+        var key = Object.keys(dataDictionary)[n];
         var value = dataDictionary[key];
-        switch(idx) {
-            case 0:
-                value1 = value;
-                break;
-            case 1:
-                value2 = value;
-                break;
-            default:
-                break;
+        if (key === "0") {
+            value1 = value;
+        } else if (key === "1") {
+            value2 = value;
+        } else if (key === "7") {
+            value3 = value;
         }
-        idx++;
     }
-    
+        
     var requestData = {
       api_key: "CHFOZEUUU1BVFQVN",
       field1: value1.toString(),
-      field2: value2.toString()
+      field2: value2.toString(),
+      field3: value3.toString()
     };
     
     try {
@@ -313,7 +324,8 @@ function pushDataToThingSpeak() {
                 console.log(err);
             } else {
                 logDebug("moisture 0: " + value1.toString() + "\n");
-                logDebug("moisture 7: " + value2.toString() + "\n");
+                logDebug("flow: " + value2.toString() + "\n");
+                logDebug("moisture 7: " + value3.toString() + "\n");
             }
         });
     } catch(err) {
@@ -321,14 +333,15 @@ function pushDataToThingSpeak() {
     }
 }
 
-function saveDataMoisture(value, sensor) {
-    MOISTURE.push({ value: value, sensor: sensor, time: new Date().toISOString() });
+function saveDataMoisture(value, sensor, flowValue) {
+    MOISTURE.push({ value: value, sensor: sensor, flowValue, time: new Date().toISOString() });
 
     if (MOISTURE.length > 20) { 
         MOISTURE.shift(); 
     }
 }
 
+/*
 function saveDataFlow(value, sensor) {
     FLOW.push({ value: value, sensor: sensor, time: new Date().toISOString() });
 
@@ -336,9 +349,12 @@ function saveDataFlow(value, sensor) {
         FLOW.shift(); 
     }
 }
+*/
 
-// Variable to control if checks for checking water sensor
-var check = false;
+function watering(active) {
+    check = active;
+}
+
 // check the moisture level every 10 seconds
 function monitor() {
     setInterval(function() {
@@ -347,15 +363,8 @@ function monitor() {
         var valueFlow = board.getFlowCount();
         dataDictionary["0"] = value;
         dataDictionary["1"] = valueFlow;
-        saveDataMoisture(value, 0);
-        saveDataFlow(valueFlow, 8);
+        saveDataMoisture(value, 0, valueFlow);
         
-<<<<<<< .mine
-=======
-        pushDataToThingSpeak(value);
-        pushDataToThingSpeak(valueFlow);
-
->>>>>>> .r28
         log("moisture (" + value + ")");
         if (!check && (value < 50)) {
             turnOn();
@@ -369,10 +378,6 @@ function monitor() {
             watering(false);
         }
     }, 10 * 1000);
-}
-
-function watering(active) {
-    check = active;
 }
 
 function initLog () {
@@ -443,8 +448,9 @@ function pollRemoteSensor()
             var msg = "Sensor #" + sensorId.toString() + ": " + moisture.toString();
 //            console.log(msg);
             
-            saveData(moisture, sensorId);
-            
+            var valueFlow = board.getFlowCount();
+            saveDataMoisture(value, sensorId, valueFlow);
+
             // Respond to the transmitter.
             radio.NRFWriteRegister(0x07,0x70); // clear status flags
             var TXData = new Buffer("moist");
