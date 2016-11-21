@@ -333,8 +333,11 @@ function pushDataToThingSpeak() {
     }
 }
 
-function saveDataMoisture(value, sensor, flowValue) {
-    MOISTURE.push({ value: value, sensor: sensor, flowValue, time: new Date().toISOString() });
+/*
+Saves the data for the moisture value and the sensor, as well as the flow value.
+*/
+function saveDataMoistureAndFlow(value, sensor, flowValue, check) {
+    MOISTURE.push({ value: value, sensor: sensor, flowValue, check, time: new Date().toISOString() });
 
     if (MOISTURE.length > 20) { 
         MOISTURE.shift(); 
@@ -362,17 +365,20 @@ function monitor() {
         var value = board.moistureValue();
         var valueFlow = board.getFlowCount();
         dataDictionary["0"] = value;
-        dataDictionary["1"] = valueFlow;
-        saveDataMoisture(value, 0, valueFlow);
+        dataDictionary["6"] = valueFlow;
+        saveDataMoistureAndFlow(value, 0, valueFlow, check);
         
-        log("moisture (" + value + ")");
+        log("moisture (" + value + ") flow count: (" + board.getFlowCount() + ")");
+        
+        // If we are not watering check the moisture level and start watering if needed
         if (!check && (value < 50)) {
             turnOn();
             board.startFlow();
             watering(true);
         }
-        log("flow (" + board.getFlowCount() + ") millis: (" + board.getMillis() + ") flow rate: (" + board.getFlowRate() + ")");
-        if (check && board.getMillis() >= 120000) {
+        
+        // If we are watering check to see if we should stop
+        if (check && board.getFlowCount() > 12) {
             turnOff();
             board.stopFlow();
             watering(false);
@@ -449,7 +455,7 @@ function pollRemoteSensor()
 //            console.log(msg);
             
             var valueFlow = board.getFlowCount();
-            saveDataMoisture(value, sensorId, valueFlow);
+            saveDataMoistureAndFlow(value, sensorId, valueFlow, check);
 
             // Respond to the transmitter.
             radio.NRFWriteRegister(0x07,0x70); // clear status flags
