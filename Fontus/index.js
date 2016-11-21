@@ -238,6 +238,9 @@ function server() {
       "<td>",
       data.flowValue,
       "</td>",
+      "<td>",
+      data.offOnString,
+      "</td>",
     ].join("\n");
   }
 
@@ -337,7 +340,14 @@ function pushDataToThingSpeak() {
 Saves the data for the moisture value and the sensor, as well as the flow value.
 */
 function saveDataMoistureAndFlow(value, sensor, flowValue, check) {
-    MOISTURE.push({ value: value, sensor: sensor, flowValue, check, time: new Date().toISOString() });
+    var offOnString;
+    if (check) {
+        offOnString = "On";
+    } else {
+        offOnString = "Off"
+    }
+    
+    MOISTURE.push({ value: value, sensor: sensor, flowValue, offOnString, time: new Date().toISOString() });
 
     if (MOISTURE.length > 20) { 
         MOISTURE.shift(); 
@@ -368,7 +378,7 @@ function monitor() {
         dataDictionary["6"] = valueFlow;
         saveDataMoistureAndFlow(value, 0, valueFlow, check);
         
-        log("moisture (" + value + ") flow count: (" + board.getFlowCount() + ")");
+        log("moisture (" + value + ") flow count (" + board.getFlowCount() + ")");
         
         // If we are not watering check the moisture level and start watering if needed
         if (!check && (value < 50)) {
